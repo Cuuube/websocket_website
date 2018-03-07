@@ -34,3 +34,15 @@ exports.PingRoute = class PingRoute {
         });
     }
 }
+
+exports.ToBoardcast = class ToBoardcast {
+    constructor () {
+        this.id = 'toBoardcast';
+    }
+    execute (req, res) {
+        const WsServer = require('../ws_app.js');
+        WsServer.boardcast({
+            msg: '服务器来的广播！'
+        });
+    }
+}

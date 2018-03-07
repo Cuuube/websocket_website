@@ -8,6 +8,7 @@ let routes = require('../routes_index.js');
 class Hub {
     constructor () {
         this.station = new Map();
+        this.m_instance = this;
 
         this.bindRoute();
     }
@@ -19,8 +20,7 @@ class Hub {
         })
     }
 
-    dealwith (connection, request) {
-        // 可以优化，现在是每一个用户连接上，所有路由类会马上全部实例化保存在内存。这样不合适。应该收到请求后再进行实例，调用。
+    do (connection, request) {
         let id = request.id;
         
         if (this.station.has(id)) {
@@ -28,6 +28,10 @@ class Hub {
             this.station.get(id).execute(request, response);
         }
     }
+
+    static instance () {
+        return Hub.m_instance;
+    }
 }
 
-module.exports = new Hub();
+module.exports = Hub;

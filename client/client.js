@@ -12,6 +12,7 @@ class WSConstroller {
             res = JSON.parse(res.data);
 
             let { id, data, status } = res;
+            
             if (this.station.has(id)) {
                 let cb = this.station.get(id);
                 if (status < 400 ) {

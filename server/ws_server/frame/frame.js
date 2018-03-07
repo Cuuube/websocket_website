@@ -10,6 +10,7 @@ exports.Request =  class Request {
         this.data = data.data;
     }
 }
+
 exports.Response = class Response {
     constructor (id, connection) {
         this.id = id;
@@ -30,7 +31,7 @@ exports.Response = class Response {
     }
 
     // TODO 暂不清楚哪里插入错误处理
-    sendError () {
+    error () {
         let sendData = Object.assign(this.sendData, {
             id: this.id,
             status: 500,
@@ -39,6 +40,10 @@ exports.Response = class Response {
             }
         });
         this.connection.sendUTF(JSON.stringify(sendData));
+    }
+
+    status (statusCode) {
+        this.sendData.status = statusCode;
     }
 }
 

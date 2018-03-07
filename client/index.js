@@ -2,6 +2,11 @@
 
 function main () {
 
+    let getBoardcast = new Sender('boardcast');
+    getBoardcast.onload = (data) => {
+        console.log(data);
+    }
+
     let helloSender = new Sender('hello');
     helloSender.onload = (data) => {
         console.log(data);
