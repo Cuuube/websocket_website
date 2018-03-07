@@ -35,9 +35,9 @@ exports.PingRoute = class PingRoute {
     }
 }
 
-exports.ToBoardcast = class ToBoardcast {
+exports.EmitBoardcast = class EmitBoardcast {
     constructor () {
-        this.id = 'toBoardcast';
+        this.id = 'boardcast';
     }
     execute (req, res) {
         const WsServer = require('../ws_app.js');

@@ -27,7 +27,8 @@ class WsServer {
         
             connection.on('message', (message) => {
                 if (message.type === 'utf8') {
-                    console.log(`Received Message from ${req.origin}: "${message.utf8Data}"`);
+                    // 客户机的唯一身份表示可以用req.key指示。或者自己写身份认证
+                    console.log(`Received Message from ${req.key}: "${message.utf8Data}"`);
         
                     let request = new Request(message.utf8Data);
                     this.hub.do(connection, request);
@@ -51,7 +52,6 @@ class WsServer {
 
     static boardcast (...data) {
         WsServer.m_instance.getAllConnections().forEach(connection => {
-            console.log('send 1');
             let response = new Response('boardcast', connection);
             response.send(...data);
         });
