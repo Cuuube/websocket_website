@@ -1,38 +1,11 @@
 // 以下是页面脚本，非核心组件，为页面脚本。
 
 function main () {
+    // let createRoomSender = new Sender('create_room');
+    // createRoomSender.send();
 
-    let _boardcast = new Sender('boardcast');
-    _boardcast.onload = (data) => {
-        console.log(data);
-    }
-    _boardcast.send({msg: 'go'})
-
-    // 一次完整的发请求的调用
-    let helloSender = new Sender('hello');
-    helloSender.onload = (data) => {
-        console.log(data);
-    }
-    helloSender.onerror = (error) => {
-        console.error(error);
-    }
-    helloSender.send({
-        msg: 'hello world!'
-    }, {
-        header: 'hahahah'
-    });
-    // end
-
-    let pingSender = new Sender('ping');
-    pingSender.onload = (data) => {
-        console.log(data);
-    }
-    pingSender.onerror = (error) => {
-        console.error(error);
-    }
-    pingSender.send({
-        msg: 'ping'
-    });
+    let roomClosedSender = new Sender('room_closed');
+    
 }
 
 window.onload = () => {

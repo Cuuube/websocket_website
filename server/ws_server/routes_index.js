@@ -1,6 +1,7 @@
 // 在routes文件夹下添加路由文件之后，需要把路由文件引入下面数组。
 let routes = [
     require('./routes/example.js'),
+    require('./routes/room.js'),
     // continue
 ];
 
