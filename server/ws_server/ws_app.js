@@ -4,7 +4,7 @@ const WebSocketServer = require('websocket').server;
 
 const { Request, Response } = require('./frame/frame.js');
 const Hub = require('./frame/hub.js');
-
+const RoomController = require('./rooms/room_controller.js');
 
 class WsServer {
     constructor (server) {
@@ -30,14 +30,17 @@ class WsServer {
                     // 客户机的唯一身份表示可以用req.key指示。或者自己写身份认证
                     console.log(`Received Message from ${req.key}: "${message.utf8Data}"`);
         
-                    let request = new Request(message.utf8Data);
-                    this.hub.do(connection, request);
+                    let request = new Request(message.utf8Data, connection);
+                    // request.setConnection(connection);
+                    this.hub.do(request);
                 }
             });
         
             connection.on('close', (reasonCode, description) => {
                 console.log(connection.remoteAddress + ' disconnected.');
                 console.log('房间还剩下：'+ this.getAllConnections().length +'人');
+                connection.removeAllListeners();
+                RoomController.instance().removeConnection(connection);
             });
         })
     }

@@ -20,11 +20,11 @@ class Hub {
         })
     }
 
-    do (connection, request) {
+    do (request) {
         let id = request.id;
         
         if (this.station.has(id)) {
-            let response = new Response(id, connection);
+            let response = new Response(request);
             this.station.get(id).execute(request, response);
         }
     }

@@ -95,9 +95,10 @@ class Sender {
         this.id = id;
         this.wsController = WSConstroller.instance();
         this.cb = { 
-            successCb: () => {},
-            errorCb: () => {},
+            successCb: console.log,
+            errorCb: console.error,
         };
+        this._toRegister();
     }
 
     // 把自己注册到被观察者中
@@ -108,13 +109,11 @@ class Sender {
     // 接收到消息的回调
     load (callback) {
         this.cb['successCb'] = callback;
-        this._toRegister();
     }
 
     // 接收到消息的回调（发生错误的情况）
     error (callback) {
         this.cb['errorCb'] = callback;
-        this._toRegister();
     }
 
     // 接收到消息的回调，另一种写法
@@ -136,4 +135,11 @@ class Sender {
         }
         this.wsController.ws.send(JSON.stringify(send_data));
     }
+}
+
+const link = (id, successCb, errorCb) => {
+    let sender = new Sender(id);
+    successCb ? sender.onload = successCb : null;
+    errorCb ? sender.onerror = errorCb : null;
+    return sender;
 }

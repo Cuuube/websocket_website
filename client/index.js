@@ -1,38 +1,57 @@
 // 以下是页面脚本，非核心组件，为页面脚本。
 
 function main () {
+    console.log('页面加载完毕！');
+    const dom = (selector) => document.querySelector(selector);
 
-    let _boardcast = new Sender('boardcast');
-    _boardcast.onload = (data) => {
-        console.log(data);
-    }
-    _boardcast.send({msg: 'go'})
+    const roomCloseLink = link('room_closed');
 
-    // 一次完整的发请求的调用
-    let helloSender = new Sender('hello');
-    helloSender.onload = (data) => {
+    const createRoomLink = link('create_room', (data) => {
         console.log(data);
-    }
-    helloSender.onerror = (error) => {
-        console.error(error);
-    }
-    helloSender.send({
-        msg: 'hello world!'
-    }, {
-        header: 'hahahah'
+        dom('#room-id-input').value = data.room_id;
     });
-    // end
+    dom('#create-room').addEventListener('click', (e) => {
+        createRoomLink.send();
+        
+    })
 
-    let pingSender = new Sender('ping');
-    pingSender.onload = (data) => {
+    const showRoomsLink = link('show_rooms');
+    dom('#show-rooms').addEventListener('click', (e) => {
+        showRoomsLink.send();
+    })
+
+    const joinRoomLink = link('join_room');
+    dom('#join-room').addEventListener('click', (e) => {
+        joinRoomLink.send({
+            room_id: dom('#room-id-input').value
+        });
+    })
+
+    const sendMessage = link('room_message');
+    dom('#send').addEventListener('click', (e) => {
+        sendMessage.send({
+            room_id: dom('#room-id-input').value,
+            msg: dom('#message-input').value,
+        });
+    })
+
+    const closeRoomLink = link('close_room', (data) => {
         console.log(data);
-    }
-    pingSender.onerror = (error) => {
-        console.error(error);
-    }
-    pingSender.send({
-        msg: 'ping'
+        dom('#room-id-input').value = '';
     });
+    dom('#close-room').addEventListener('click', (e) => {
+        closeRoomLink.send({
+            room_id: dom('#room-id-input').value,
+        });
+    })
+
+    const exitRoomLink = link('exit_room');
+    dom('#exit-room').addEventListener('click', (e) => {
+        exitRoomLink.send();
+    })
+
+    // let roomClosedSender = new Sender('room_closed');
+    
 }
 
 window.onload = () => {
