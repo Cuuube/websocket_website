@@ -13,12 +13,17 @@ class RoomController {
     }
 
     createRoom (connection) {
-        let room = new Room(connection);
-        let roomId = room.id;
-        this.rooms.set(roomId, room);
-        this.connectionRoomIndex.set(connection, room);
-        console.log('生成了一个room：' + roomId);
-        return room;
+        if (this.connectionRoomIndex.has(connection)) {
+            return void 0;
+        } else {
+            let room = new Room(connection);
+            let roomId = room.id;
+            this.rooms.set(roomId, room);
+            this.connectionRoomIndex.set(connection, room);
+            console.log('生成了一个room：' + roomId);
+            return room;
+        }
+        
     }
 
     hasRoom (roomId) {
@@ -32,25 +37,32 @@ class RoomController {
     }
 
     joinRoom (roomId, member) {
-        let res = {
-            status: false,
+        let result = {
+            status: 1,
             msg: ''
         };
         let isHas = this.hasRoom(roomId);
         let room = this.getRoom(roomId);
         if (!isHas) {
-            res.msg = roomId + '房间不存在';
-            return res;
+            result.msg = roomId + '房间不存在';
+            return result;
         }
-
+        if (room.hasMember(member)) {
+            result.msg = '您已经在此房间内，不能重复加入！';
+            return result;
+        }
         if (room.addMember(member)) {
-            res.status = true;
-            res.msg = '加入成功';
+            result.status = 0;
+            result.msg = '加入成功';
             this.connectionRoomIndex.set(member, room);
         } else {
-            res.msg = '加入失败';
+            result.msg = '加入失败';
         }
-        return res;
+        return result;
+    }
+
+    exitRoom (member) {
+        return this.removeConnection(member);
     }
 
     removeRoom (roomId) {
@@ -70,20 +82,30 @@ class RoomController {
     }
 
     removeConnection (connection) {
+        let result = {
+            status: 0,
+            msg: ''
+        };
         if (this.connectionRoomIndex.has(connection)) {
             let room = this.connectionRoomIndex.get(connection);
             if (room.host === connection) {
                 this.removeRoom(room.id);
+                result.msg = '您成功退出房间。因为您是房主，房间自动关闭。';
             } else {
                 room.removeMember(connection);
+                result.msg = '您已成功退出房间。'
             }
             // 删除connection时，顺便删除该connection在索引中的记录
             this.connectionRoomIndex.delete(connection);
+        } else {
+            result.msg = '您不在任何房间内，无法退出房间。'
+            result.status = 1;
         }
+        return result;
     }
 
     allRoomsId () {
-        return this.rooms.keys();
+        return Array.from(this.rooms.keys());
     }
 }
 

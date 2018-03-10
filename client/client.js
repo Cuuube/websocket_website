@@ -136,3 +136,10 @@ class Sender {
         this.wsController.ws.send(JSON.stringify(send_data));
     }
 }
+
+const link = (id, successCb, errorCb) => {
+    let sender = new Sender(id);
+    successCb ? sender.onload = successCb : null;
+    errorCb ? sender.onerror = errorCb : null;
+    return sender;
+}

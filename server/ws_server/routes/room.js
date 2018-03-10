@@ -7,10 +7,17 @@ exports.CreateRoom = class CreateRoom {
     execute (req, res) {
         let host = req.connection;
         let room = RoomController.instance().createRoom(host);
-        res.send({
-            msg: 'Room created success!',
-            room_id: room.id
-        });
+        if (room) {
+            res.send({
+                msg: '创建room成功!',
+                room_id: room.id
+            });
+        } else {
+            res.error({ 
+                msg: '您已在房间中，不能再创建room！'
+            });
+        }
+        
     }
 }
 
@@ -24,10 +31,10 @@ exports.CloseRoom = class CloseRoom {
         if (roomController.hasRoom(room_id)) {
             let room = roomController.getRoom(room_id);
             if (room.host === req.connection) {
-                room.boardcast(this.id, {
-                    room_id,
-                    msg: '房间主人关闭了房间，所有成员被强制退出。'
-                })
+                // room.boardcast(this.id, {
+                //     room_id,
+                //     msg: '房间主人关闭了房间，所有成员被强制退出。'
+                // })
                 roomController.removeRoom(room.id);
                 res.send({
                     status: 0,
@@ -39,7 +46,11 @@ exports.CloseRoom = class CloseRoom {
                     msg: '您不是房间主人，没有权限关闭房间！'
                 })
             }
-            
+        } else {
+            res.error({
+                status: 1,
+                msg: '房间不存在或已被关闭！'
+            })
         }
     }
 }
@@ -57,9 +68,9 @@ exports.FindRoom = class FindRoom {
     }
 }
 
-exports.FindAllRoom = class FindAllRoom {
+exports.ShowRooms = class ShowRooms {
     constructor () {
-        this.id = 'find_all_room';
+        this.id = 'show_rooms';
     }
     execute (req, res) {
         res.send({
@@ -75,11 +86,26 @@ exports.JoinRoom = class JoinRoom {
     execute (req, res) {
         let { room_id } = req.data;
         let { status, msg } = RoomController.instance().joinRoom(room_id, req.connection);
-        res.send({
+        status ? res.error({
             room_id,
             status,
             msg
-        });
+        }) : res.send({
+            room_id,
+            status,
+            msg
+        })
+    }
+}
+
+exports.ExitRoom = class ExitRoom {
+    constructor () {
+        this.id = 'exit_room';
+    }
+    execute (req, res) {
+        // let { room_id } = req.data;
+        let result = RoomController.instance().exitRoom(req.connection);
+        result.status ? res.error(result) : res.send(result);
     }
 }
 
@@ -90,8 +116,8 @@ exports.RoomMessage = class RoomMessage {
     execute (req, res) {
         let { msg, name, room_id } = req.data;
         let roomController = RoomController.instance();
-        if (roomController.hasRoom(room_id)) {
-            let room = roomController.getRoom(room_id);
+        let room = roomController.getRoom(room_id);
+        if (room && room.hasMember(req.connection)) {
             room.boardcast(this.id, {
                 room_id,
                 msg
@@ -99,7 +125,7 @@ exports.RoomMessage = class RoomMessage {
         } else {
             res.error({
                 status: 1,
-                msg: '房间不存在'
+                msg: '房间不存在, 或您不在房间中'
             })
         }
     }

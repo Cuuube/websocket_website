@@ -11,6 +11,10 @@ module.exports = class Room {
         this.addMember(host);
     }
 
+    hasMember (member) {
+        return this.members.has(member);
+    }
+
     addMember (member) {
         if (this.memberCount() < this.MAX_MENBER_COUNT) {
             this.members.add(member);
@@ -19,9 +23,14 @@ module.exports = class Room {
             return false;
         }
     }
-    
+
     removeMember (member) {
-        this.members.delete(member);
+        if (this.members.has(member)) {
+            this.members.delete(member);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     memberCount () {
@@ -30,17 +39,25 @@ module.exports = class Room {
 
     destory () {
         // TODO 释放全部connection，并给所有connection发消息，房间解散
-        this.id = null;
-        this.host = null;
         this.boardcast('room_closed', {
             msg: '房间已关闭！'
         })
+        this.id = null;
+        this.host = null;
         this.members.clear();
     }
 
     boardcast (id, ...params) {
-        this.members.forEach((connection) => {
-            new SimpleResponse(id, connection).send(...params);
-        })
+        if (id === 'room_closed') {
+            this.members.forEach((connection) => {
+                if (connection === this.host) return;
+                new SimpleResponse(id, connection).send(...params);
+            })
+        } else {
+            this.members.forEach((connection) => {
+                new SimpleResponse(id, connection).send(...params);
+            })
+        }
+        
     }
 }
